@@ -682,6 +682,440 @@ a:focus-visible {
   transform: scale(1.01);
 }
 
+/*==============================================================
+  10 LD – KOMPETENCIJŲ PAŽANGOS MODULIS (progress.html)
+  Išdėstymas: CSS Grid (lenta, informacija) ir Flexbox (kortelės, statistika)
+==============================================================*/
+.xp-module {
+  --c-planned: #f5b942;       /* Planuojama – gintaras */
+  --c-learning: #5cb8e6;      /* Mokomasi – mėlyna */
+  --c-done: #5ed39a;          /* Atlikta – žalia */
+  --c-level: #b69cff;         /* Lygis – violetinė */
+}
+
+.xp-module .section-title h2 i {
+  color: var(--accent-color);
+  margin-right: 0.4rem;
+  font-size: 0.9em;
+}
+
+/* ---------- Bendras skydelis (XP, lygis, rangas, juosta, statistika) ---------- */
+.xp-panel {
+  background: var(--surface-color);
+  border: 1px solid var(--border-soft);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.xp-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.info-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid transparent;
+}
+
+.info-icon {
+  flex: 0 0 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.info-label {
+  display: block;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  color: #c4d5dc;
+}
+
+.info-value {
+  display: block;
+  font-family: var(--heading-font);
+  font-size: 1.6rem;
+  line-height: 1.3;
+  color: #ffffff;
+}
+
+.info-xp    { background: rgba(245, 185, 66, 0.12);  border-color: rgba(245, 185, 66, 0.35); }
+.info-xp .info-icon    { color: var(--c-planned); }
+.info-level { background: rgba(182, 156, 255, 0.12); border-color: rgba(182, 156, 255, 0.35); }
+.info-level .info-icon { color: var(--c-level); }
+.info-rank  { background: rgba(94, 211, 154, 0.12);  border-color: rgba(94, 211, 154, 0.35); }
+.info-rank .info-icon  { color: var(--c-done); }
+
+/* ---------- Progreso juosta ---------- */
+.xp-progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.6rem;
+  font-family: var(--heading-font);
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.xp-progress-note {
+  font-family: var(--default-font);
+  font-weight: 400;
+  font-size: 0.95rem;
+  color: #c4d5dc;
+}
+
+.xp-bar {
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);       /* likusi dalis */
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+
+.xp-bar-fill {
+  width: var(--value, 0%);                      /* užpildyta dalis */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.75rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #d99a1f, var(--accent-color));
+  color: var(--contrast-color);
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 0 14px rgba(245, 185, 66, 0.55);
+  animation: xp-fill 1.4s ease-out both;
+}
+
+@keyframes xp-fill {
+  from { width: 0; }
+  to   { width: var(--value, 0%); }
+}
+
+/* ---------- Statistika (Flexbox) ---------- */
+.xp-stats {
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 1.25rem;
+}
+
+.xp-stats .stat {
+  flex: 1 1 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.25rem 1rem;
+  color: #c4d5dc;
+}
+
+.xp-stats .stat + .stat {
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.xp-stats .stat i {
+  font-size: 1.3rem;
+  color: var(--accent-color);
+}
+
+.xp-stats .stat strong {
+  font-family: var(--heading-font);
+  font-size: 1.25rem;
+  color: #ffffff;
+}
+
+/* ---------- Kanban lenta (Grid) ---------- */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+.kanban-col {
+  --col: var(--c-planned);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-color);
+  border: 1px solid var(--border-soft);
+  border-top: 5px solid var(--col);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  padding: 1.25rem;
+  min-height: 280px;
+}
+
+.kanban-col.planned  { --col: var(--c-planned); }
+.kanban-col.learning { --col: var(--c-learning); }
+.kanban-col.done     { --col: var(--c-done); }
+
+.kanban-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.kanban-head h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 1.3rem;
+  color: var(--col);
+}
+
+.kanban-count {
+  min-width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-weight: 700;
+  color: var(--contrast-color);
+  background: var(--col);
+}
+
+.kanban-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* ---------- Įgūdžių kortelės (Flexbox) ---------- */
+.skill-card {
+  --col: var(--c-planned);
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left: 4px solid var(--col);
+  border-radius: 12px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.skill-card.planned  { --col: var(--c-planned); }
+.skill-card.learning { --col: var(--c-learning); }
+.skill-card.done     { --col: var(--c-done); }
+
+.skill-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4);
+}
+
+.skill-icon {
+  flex: 0 0 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  font-size: 1.35rem;
+  color: var(--col);
+  background: color-mix(in srgb, var(--col), transparent 85%);
+  border-radius: 10px;
+}
+
+.skill-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.skill-name {
+  margin: 0 0 0.3rem;
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: #ffffff;
+}
+
+.skill-status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--col);
+  background: color-mix(in srgb, var(--col), transparent 86%);
+  border: 1px solid color-mix(in srgb, var(--col), transparent 65%);
+}
+
+.skill-xp {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 2px 10px;
+  border-radius: 8px;
+  font-family: var(--heading-font);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ---------- Modulio prisitaikymas ---------- */
+@media (max-width: 991.98px) {
+  .xp-info   { grid-template-columns: 1fr; }
+  .kanban    { grid-template-columns: 1fr; }
+  .kanban-col { min-height: 0; }
+}
+
+@media (max-width: 575.98px) {
+  .xp-panel { padding: 1.1rem; }
+  .xp-stats .stat + .stat { border-left: 0; }
+  .skill-card { flex-wrap: wrap; }
+  .skill-xp { margin-left: auto; }
+}
+
+/*==============================================================
+  10 LD – PAPILDOMA UŽDUOTIS
+==============================================================*/
+
+/* ---- 1. "Paslaugų" skilties animuotas gradientinis fonas ---- */
+.services.section {
+  background: linear-gradient(-45deg, #0e171c, #17323f, #3b2a08, #0d3b3a, #0e171c);
+  background-size: 400% 400%;
+  animation: gradient-shift 16s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ---- 2. "Apie" skilties animuotos CSS figūros ---- */
+.about.section {
+  position: relative;
+}
+
+.about.section > .container {
+  position: relative;
+  z-index: 1;                                /* turinys virš figūrų */
+}
+
+.about-shapes {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;                      /* neuždengia turinio ir nelaiko paspaudimų */
+}
+
+.about-shapes .shape {
+  position: absolute;
+  display: block;
+}
+
+/* apskritimas – "plūduriuoja" aukštyn ir žemyn */
+.about-shapes .shape-circle {
+  width: 90px;
+  height: 90px;
+  top: 14%;
+  right: 5%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #ffd27a, #f5b942 60%, #a87818);
+  opacity: 0.55;
+  animation: shape-float 7s ease-in-out infinite;
+}
+
+/* trikampis – sukasi aplink savo ašį */
+.about-shapes .shape-triangle {
+  width: 0;
+  height: 0;
+  top: 42%;
+  left: 3%;
+  border-left: 42px solid transparent;
+  border-right: 42px solid transparent;
+  border-bottom: 74px solid #5cb8e6;
+  opacity: 0.5;
+  animation: shape-rotate 12s linear infinite;
+}
+
+/* kvadratas – didėja ir mažėja (scale) */
+.about-shapes .shape-square {
+  width: 64px;
+  height: 64px;
+  bottom: 9%;
+  right: 12%;
+  border: 5px solid #5ed39a;
+  border-radius: 10px;
+  opacity: 0.55;
+  animation: shape-scale 4.5s ease-in-out infinite;
+}
+
+/* punktyrinis žiedas – sukasi priešinga kryptimi ir juda į šoną */
+.about-shapes .shape-ring {
+  width: 120px;
+  height: 120px;
+  bottom: 5%;
+  left: 9%;
+  border: 4px dashed #f5b942;
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: shape-rotate-rev 18s linear infinite, shape-drift 9s ease-in-out infinite;
+}
+
+@keyframes shape-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-28px); }
+}
+
+@keyframes shape-rotate {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shape-rotate-rev {
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes shape-scale {
+  0%, 100% { transform: scale(0.8) rotate(0deg); }
+  50%      { transform: scale(1.35) rotate(45deg); }
+}
+
+@keyframes shape-drift {
+  0%, 100% { margin-left: 0; }
+  50%      { margin-left: 40px; }
+}
+
+@media (max-width: 767.98px) {
+  .about-shapes .shape-circle   { width: 56px; height: 56px; }
+  .about-shapes .shape-ring     { width: 80px; height: 80px; }
+  .about-shapes .shape-square   { width: 44px; height: 44px; }
+  .about-shapes .shape-triangle { border-left-width: 28px; border-right-width: 28px; border-bottom-width: 50px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .services.section,
+  .about-shapes .shape,
+  .xp-bar-fill {
+    animation: none !important;
+  }
+}
+
 /*--------------------------------------------------------------
   Mažiems ekranams
 --------------------------------------------------------------*/

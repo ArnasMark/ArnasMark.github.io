@@ -994,22 +994,22 @@ a:focus-visible {
   10 LD – PAPILDOMA UŽDUOTIS
 ==============================================================*/
 
-/* ---- 1. "Paslaugų" skilties animuotas gradientinis fonas ---- */
+/* ---- 1. "Paslaugų" skilties animuotas fonas: ryški -> tamsesnė spalva ---- */
 .services.section {
-  background: linear-gradient(-45deg, #0e171c, #17323f, #3b2a08, #0d3b3a, #0e171c);
-  background-size: 400% 400%;
-  animation: gradient-shift 16s ease-in-out infinite;
+  background: linear-gradient(135deg, #2a86a8 0%, #1b5670 40%, #12303f 70%, #0a1319 100%);
+  background-size: 300% 300%;
+  animation: gradient-shift 9s ease-in-out infinite alternate;
 }
 
 @keyframes gradient-shift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0%   { background-position: 0% 0%; }       /* ryškiausia spalva */
+  100% { background-position: 100% 100%; }   /* tamsiausia spalva */
 }
 
-/* ---- 2. "Apie" skilties animuotos CSS figūros ---- */
+/* ---- 2. "Apie" skilties animuotos CSS figūros (sukasi, plūduriuoja, didėja) ---- */
 .about.section {
   position: relative;
+  overflow: hidden;
 }
 
 .about.section > .container {
@@ -1021,99 +1021,93 @@ a:focus-visible {
   position: absolute;
   inset: 0;
   z-index: 0;
-  pointer-events: none;                      /* neuždengia turinio ir nelaiko paspaudimų */
+  pointer-events: none;                      /* neuždengia turinio */
 }
 
 .about-shapes .shape {
   position: absolute;
   display: block;
+  opacity: 0.85;
 }
 
-/* apskritimas – "plūduriuoja" aukštyn ir žemyn */
+/* Naudojamos atskiros savybės translate / rotate / scale,
+   todėl kelios animacijos vienu metu nekonfliktuoja. */
+
+/* apskritimas: plūduriuoja aukštyn–žemyn + sukasi */
 .about-shapes .shape-circle {
-  width: 90px;
-  height: 90px;
-  top: 14%;
-  right: 5%;
+  width: 100px;
+  height: 100px;
+  top: 2%;
+  right: 7%;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #ffd27a, #f5b942 60%, #a87818);
-  opacity: 0.55;
-  animation: shape-float 7s ease-in-out infinite;
+  background: conic-gradient(#f5b942, #ffe3a3, #d99a1f, #f5b942);
+  animation: circle-move 6s ease-in-out infinite;
 }
 
-/* trikampis – sukasi aplink savo ašį */
+/* trikampis: sukasi + plūduriuoja į šonus */
 .about-shapes .shape-triangle {
   width: 0;
   height: 0;
-  top: 42%;
-  left: 3%;
-  border-left: 42px solid transparent;
-  border-right: 42px solid transparent;
-  border-bottom: 74px solid #5cb8e6;
-  opacity: 0.5;
-  animation: shape-rotate 12s linear infinite;
+  top: 4%;
+  left: 7%;
+  border-left: 50px solid transparent;
+  border-right: 50px solid transparent;
+  border-bottom: 88px solid #5cb8e6;
+  animation: triangle-move 8s ease-in-out infinite;
 }
 
-/* kvadratas – didėja ir mažėja (scale) */
+/* kvadratas: didėja/mažėja + sukasi + plūduriuoja */
 .about-shapes .shape-square {
-  width: 64px;
-  height: 64px;
-  bottom: 9%;
+  width: 70px;
+  height: 70px;
+  bottom: 2%;
   right: 12%;
-  border: 5px solid #5ed39a;
+  border: 6px solid #5ed39a;
   border-radius: 10px;
-  opacity: 0.55;
-  animation: shape-scale 4.5s ease-in-out infinite;
+  animation: square-move 5s ease-in-out infinite;
 }
 
-/* punktyrinis žiedas – sukasi priešinga kryptimi ir juda į šoną */
+/* punktyrinis žiedas: sukasi priešinga kryptimi + plūduriuoja */
 .about-shapes .shape-ring {
-  width: 120px;
-  height: 120px;
-  bottom: 5%;
-  left: 9%;
-  border: 4px dashed #f5b942;
+  width: 130px;
+  height: 130px;
+  bottom: 1%;
+  left: 10%;
+  border: 5px dashed #f5b942;
   border-radius: 50%;
-  opacity: 0.5;
-  animation: shape-rotate-rev 18s linear infinite, shape-drift 9s ease-in-out infinite;
+  animation: ring-move 9s ease-in-out infinite;
 }
 
-@keyframes shape-float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-28px); }
+/* Kiekvienoje animacijoje sujungtas sukimasis (rotate), plūduriavimas (translate) ir didėjimas (scale) */
+@keyframes circle-move {          /* plūduriuoja aukštyn–žemyn ir sukasi */
+  0%   { transform: translateY(0)     rotate(0deg); }
+  50%  { transform: translateY(-35px) rotate(180deg); }
+  100% { transform: translateY(0)     rotate(360deg); }
 }
 
-@keyframes shape-rotate {
-  to { transform: rotate(360deg); }
+@keyframes triangle-move {        /* sukasi ir plūduriuoja į šonus */
+  0%   { transform: translate(0, 0)       rotate(0deg); }
+  50%  { transform: translate(50px, -20px) rotate(180deg); }
+  100% { transform: translate(0, 0)       rotate(360deg); }
 }
 
-@keyframes shape-rotate-rev {
-  to { transform: rotate(-360deg); }
+@keyframes square-move {          /* didėja, mažėja, sukasi ir juda */
+  0%   { transform: translateY(0)     scale(0.7) rotate(0deg); }
+  50%  { transform: translateY(-30px) scale(1.4) rotate(180deg); }
+  100% { transform: translateY(0)     scale(0.7) rotate(360deg); }
 }
 
-@keyframes shape-scale {
-  0%, 100% { transform: scale(0.8) rotate(0deg); }
-  50%      { transform: scale(1.35) rotate(45deg); }
-}
-
-@keyframes shape-drift {
-  0%, 100% { margin-left: 0; }
-  50%      { margin-left: 40px; }
+@keyframes ring-move {            /* sukasi priešinga kryptimi ir juda į šonus */
+  0%   { transform: translateX(0)    rotate(0deg); }
+  50%  { transform: translateX(45px) rotate(-180deg); }
+  100% { transform: translateX(0)    rotate(-360deg); }
 }
 
 @media (max-width: 767.98px) {
-  .about-shapes .shape-circle   { width: 56px; height: 56px; }
+  .about-shapes .shape-circle   { width: 60px; height: 60px; }
   .about-shapes .shape-ring     { width: 80px; height: 80px; }
   .about-shapes .shape-square   { width: 44px; height: 44px; }
-  .about-shapes .shape-triangle { border-left-width: 28px; border-right-width: 28px; border-bottom-width: 50px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .services.section,
-  .about-shapes .shape,
-  .xp-bar-fill {
-    animation: none !important;
-  }
+  .about-shapes .shape-triangle { border-left-width: 30px; border-right-width: 30px; border-bottom-width: 52px; }
 }
 
 /*--------------------------------------------------------------
@@ -1142,8 +1136,3 @@ a:focus-visible {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-  }
-}

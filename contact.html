@@ -128,38 +128,96 @@
 
           <div class="col-lg-7">
             <div class="contact-form" data-aos="fade-up" data-aos-delay="300">
-              <h3>Parašykite žinutę</h3>
-              <p>Dėl bendradarbiavimo ar profesinių galimybių galima susisiekti per studijų ar profesinį tinklą.</p>
+              <h3>Kontaktų forma</h3>
+              <p>Užpildykite visus laukus ir įvertinkite svetainę skalėje nuo 1 iki 10. Mygtukas „Siųsti“ taps aktyvus, kai visi duomenys bus teisingi.</p>
 
-              <form action="forms/contact.php" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
-                <div class="row gy-4">
+              <form id="contact-form" action="#" method="post" novalidate>
+                <div class="row gy-2">
 
                   <div class="col-md-6">
-                    <input type="text" name="name" class="form-control" placeholder="Jūsų vardas" required="">
+                    <div class="form-group">
+                      <label for="firstName" class="form-label">Vardas<span class="req" aria-hidden="true"> *</span></label>
+                      <input type="text" id="firstName" name="firstName" class="form-control" placeholder="Jūsų vardas" autocomplete="given-name" required aria-describedby="firstName-error">
+                      <div class="field-error" id="firstName-error" aria-live="polite"></div>
+                    </div>
                   </div>
 
-                  <div class="col-md-6 ">
-                    <input type="email" class="form-control" name="email" placeholder="Jūsų el. paštas" required="">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="lastName" class="form-label">Pavardė<span class="req" aria-hidden="true"> *</span></label>
+                      <input type="text" id="lastName" name="lastName" class="form-control" placeholder="Jūsų pavardė" autocomplete="family-name" required aria-describedby="lastName-error">
+                      <div class="field-error" id="lastName-error" aria-live="polite"></div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="email" class="form-label">El. paštas<span class="req" aria-hidden="true"> *</span></label>
+                      <input type="email" id="email" name="email" class="form-control" placeholder="vardas@pastas.lt" autocomplete="email" required aria-describedby="email-error">
+                      <div class="field-error" id="email-error" aria-live="polite"></div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label for="phone" class="form-label">Telefono numeris<span class="req" aria-hidden="true"> *</span></label>
+                      <input type="tel" id="phone" name="phone" class="form-control" placeholder="+370 6xx xxxxx" autocomplete="tel" required aria-describedby="phone-error" maxlength="14" inputmode="numeric">
+                      <div class="field-error" id="phone-error" aria-live="polite"></div>
+                    </div>
                   </div>
 
                   <div class="col-12">
-                    <input type="text" class="form-control" name="subject" placeholder="Tema" required="">
+                    <div class="form-group">
+                      <label for="address" class="form-label">Adresas<span class="req" aria-hidden="true"> *</span></label>
+                      <input type="text" id="address" name="address" class="form-control" placeholder="Gatvė, namo nr., miestas" autocomplete="street-address" required aria-describedby="address-error">
+                      <div class="field-error" id="address-error" aria-live="polite"></div>
+                    </div>
                   </div>
 
                   <div class="col-12">
-                    <textarea class="form-control" name="message" rows="6" placeholder="Žinutė" required=""></textarea>
+                    <fieldset class="rating-group">
+                      <legend>Vertinimo klausimai (1–10)</legend>
+                      <div class="row gy-2">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="q1" class="form-label">1. Kaip vertinate svetainės dizainą?<span class="req" aria-hidden="true"> *</span></label>
+                      <input type="number" id="q1" name="q1" class="form-control" placeholder="1–10" autocomplete="off" required aria-describedby="q1-error" min="1" max="10" step="1" inputmode="numeric">
+                      <div class="field-error" id="q1-error" aria-live="polite"></div>
+                    </div>
                   </div>
 
-                  <div class="col-12 text-center">
-                    <div class="loading">Loading</div>
-                    <div class="error-message"></div>
-                    <div class="sent-message">Your message has been sent. Thank you!</div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="q2" class="form-label">2. Kaip vertinate svetainės turinį?<span class="req" aria-hidden="true"> *</span></label>
+                      <input type="number" id="q2" name="q2" class="form-control" placeholder="1–10" autocomplete="off" required aria-describedby="q2-error" min="1" max="10" step="1" inputmode="numeric">
+                      <div class="field-error" id="q2-error" aria-live="polite"></div>
+                    </div>
+                  </div>
 
-                    <button type="submit" class="btn">Send Žinutė</button>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label for="q3" class="form-label">3. Kaip vertinate naršymo patogumą?<span class="req" aria-hidden="true"> *</span></label>
+                      <input type="number" id="q3" name="q3" class="form-control" placeholder="1–10" autocomplete="off" required aria-describedby="q3-error" min="1" max="10" step="1" inputmode="numeric">
+                      <div class="field-error" id="q3-error" aria-live="polite"></div>
+                    </div>
+                  </div>
+
+                      </div>
+                    </fieldset>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="form-actions">
+                      <button type="submit" id="submit-btn" class="btn" disabled>Siųsti</button>
+                      <button type="button" id="clear-btn" class="btn btn-clear">Išvalyti</button>
+                    </div>
                   </div>
 
                 </div>
               </form>
+
+              <!-- Formos duomenų išvedimas (užpildo assets/js/custom.js) -->
+              <div id="form-result" class="form-result" aria-live="polite" hidden></div>
 
             </div>
           </div>
@@ -215,6 +273,9 @@
 
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
+
+  <!-- Custom JS (įkeliamas po main.js) -->
+  <script src="assets/js/custom.js"></script>
 
 </body>
 

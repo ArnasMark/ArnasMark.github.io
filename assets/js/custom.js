@@ -1,6 +1,9 @@
 /**
- * custom.js – 11 LD: kontaktų formos apdorojimas, validacija ir formatavimas.
- * Visi šio laboratorinio darbo JavaScript pakeitimai yra tik šiame faile.
+ * custom.js – visas asmeninio CV svetainės JavaScript kodas:
+ *   1) 11 LD: kontaktų formos apdorojimas, validacija ir formatavimas;
+ *   2) 12 LD: kompetencijų pažangos modulis (progress.html) – dinamiškos kortelės,
+ *      būsenų keitimas, XP / lygio / rango / progreso / statistikos perskaičiavimas
+ *      ir būsenų saugojimas naršyklės vietinėje saugykloje (Local Storage).
  */
 'use strict';
 
@@ -200,4 +203,248 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   updateSubmitState();                       // pradžioje mygtukas neaktyvus
+});
+
+
+/* ================================================================
+   12 LD – KOMPETENCIJŲ PAŽANGOS MODULIS (progress.html)
+================================================================ */
+
+/* ---------- 1. DUOMENYS ---------- */
+
+// Trys galimos įgūdžių būsenos (+ CSS klasė ir stulpelio identifikatorius)
+const STATUS_PLANNED = 'Planuojama';
+const STATUS_LEARNING = 'Mokomasi';
+const STATUS_DONE = 'Atlikta';
+
+const STATUSES = [
+  { name: STATUS_PLANNED, key: 'planned' },
+  { name: STATUS_LEARNING, key: 'learning' },
+  { name: STATUS_DONE, key: 'done' },
+];
+
+// Pradinis įgūdžių masyvas (objektai: pavadinimas, būsena, XP). Bendra suma: 360 XP
+const DEFAULT_SKILLS = [
+  { id: 'simulink',   name: 'Simulink modeliavimas',      icon: 'bi-diagram-3',        status: STATUS_PLANNED,  xp: 40 },
+  { id: 'python',     name: 'Python duomenų analizei',    icon: 'bi-filetype-py',      status: STATUS_PLANNED,  xp: 30 },
+  { id: 'javascript', name: 'JavaScript pagrindai',       icon: 'bi-filetype-js',      status: STATUS_LEARNING, xp: 30 },
+  { id: 'grids',      name: 'Elektros tinklų analizė',    icon: 'bi-lightning-charge', status: STATUS_LEARNING, xp: 50 },
+  { id: 'html-css',   name: 'HTML ir CSS',                icon: 'bi-filetype-html',    status: STATUS_DONE,     xp: 40 },
+  { id: 'matlab',     name: 'MATLAB grafikai',            icon: 'bi-graph-up',         status: STATUS_DONE,     xp: 60 },
+  { id: 'git',        name: 'Git ir GitHub',              icon: 'bi-github',           status: STATUS_DONE,     xp: 30 },
+  { id: 'circuits',   name: 'Elektros grandinių analizė', icon: 'bi-cpu',              status: STATUS_DONE,     xp: 80 },
+];
+
+// Lygių ir rangų lentelė (min – nuo kiek XP prasideda lygis)
+const LEVELS = [
+  { level: 1, min: 0,   rank: 'Pradedantysis' },
+  { level: 2, min: 50,  rank: 'Praktikantas' },
+  { level: 3, min: 150, rank: 'Specialistas' },
+  { level: 4, min: 300, rank: 'Profesionalas' },
+];
+
+const STORAGE_KEY = 'skillProgress.statuses.v1';
+
+/* ---------- 2. LOCAL STORAGE ---------- */
+
+/** Išsaugo esamas įgūdžių būsenas ({ id: būsena }) vietinėje saugykloje. */
+function saveSkills(skills) {
+  const statuses = {};
+  skills.forEach((skill) => { statuses[skill.id] = skill.status; });
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(statuses));
+  } catch (error) {
+    console.warn('Nepavyko išsaugoti būsenų vietinėje saugykloje:', error);
+  }
+}
+
+/**
+ * Sukuria įgūdžių sąrašą: jei vietinėje saugykloje yra išsaugotų būsenų – jos
+ * pritaikomos, kitu atveju naudojamos pradinės būsenos iš DEFAULT_SKILLS.
+ */
+function loadSkills() {
+  const skills = DEFAULT_SKILLS.map((skill) => ({ ...skill }));   // kopija, kad originalas nesikeistų
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (saved && typeof saved === 'object') {
+      skills.forEach((skill) => {
+        if (STATUSES.some((s) => s.name === saved[skill.id])) {    // priimame tik žinomas būsenas
+          skill.status = saved[skill.id];
+        }
+      });
+    }
+  } catch (error) {
+    console.warn('Nepavyko nuskaityti vietinės saugyklos, naudojamos pradinės būsenos:', error);
+  }
+  return skills;
+}
+
+/* ---------- 3. SKAIČIAVIMO FUNKCIJOS ---------- */
+
+/** Bendras XP – sudedami TIK „Atlikta“ būsenos įgūdžių taškai. */
+function calculateTotalXp(skills) {
+  return skills
+    .filter((skill) => skill.status === STATUS_DONE)
+    .reduce((sum, skill) => sum + skill.xp, 0);
+}
+
+/** Pagal XP grąžina lygio objektą, kitą lygį ir progresą (%) nuo einamo lygio pradžios iki kito lygio ribos. */
+function getLevelInfo(xp) {
+  let index = 0;
+  LEVELS.forEach((lvl, i) => { if (xp >= lvl.min) index = i; });
+
+  const current = LEVELS[index];
+  const next = LEVELS[index + 1] || null;
+
+  // aukščiausiame (4) lygyje juosta rodo 100 %
+  const percent = next
+    ? Math.round(((xp - current.min) / (next.min - current.min)) * 100)
+    : 100;
+
+  return { current, next, percent };
+}
+
+/** Bendras įgūdžių skaičius, atliktų skaičius ir atliktų procentas. */
+function calculateStats(skills) {
+  const total = skills.length;
+  const done = skills.filter((skill) => skill.status === STATUS_DONE).length;
+  const percent = total ? Math.round((done / total) * 100) : 0;
+  return { total, done, percent };
+}
+
+/* ---------- 4. ATVAIZDAVIMO FUNKCIJOS ---------- */
+
+/** Sukuria vienos įgūdžio kortelės DOM elementą. */
+function createSkillCard(skill) {
+  const meta = STATUSES.find((s) => s.name === skill.status);
+
+  const li = document.createElement('li');
+  const card = document.createElement('article');
+  card.className = `skill-card ${meta.key}`;
+  card.dataset.skillId = skill.id;
+
+  const icon = document.createElement('span');
+  icon.className = 'skill-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  const i = document.createElement('i');
+  i.className = `bi ${skill.icon}`;
+  icon.appendChild(i);
+
+  const info = document.createElement('div');
+  info.className = 'skill-info';
+  const name = document.createElement('h4');
+  name.className = 'skill-name';
+  name.textContent = skill.name;
+  const status = document.createElement('span');
+  status.className = 'skill-status';
+  status.textContent = `Būsena: ${skill.status}`;
+  info.append(name, status);
+
+  const xp = document.createElement('span');
+  xp.className = 'skill-xp';
+  xp.textContent = `XP: ${skill.xp}`;
+
+  // būsenos keitimo sąrašas
+  const select = document.createElement('select');
+  select.className = 'skill-select';
+  select.id = `status-${skill.id}`;
+  select.dataset.skillId = skill.id;
+  select.setAttribute('aria-label', `Keisti įgūdžio „${skill.name}“ būseną`);
+  STATUSES.forEach((s) => {
+    const option = document.createElement('option');
+    option.value = s.name;
+    option.textContent = s.name;
+    option.selected = s.name === skill.status;
+    select.appendChild(option);
+  });
+
+  card.append(icon, info, xp, select);
+  li.appendChild(card);
+  return li;
+}
+
+/** Sugeneruoja korteles pagal masyvą ir išdėsto jas atitinkamuose stulpeliuose. */
+function renderSkills(skills) {
+  STATUSES.forEach(({ name, key }) => {
+    const list = document.getElementById(`list-${key}`);
+    const inColumn = skills.filter((skill) => skill.status === name);
+
+    list.replaceChildren();
+    inColumn.forEach((skill) => list.appendChild(createSkillCard(skill)));
+
+    if (inColumn.length === 0) {
+      const empty = document.createElement('li');
+      empty.className = 'kanban-empty';
+      empty.textContent = 'Šiame stulpelyje įgūdžių nėra';
+      list.appendChild(empty);
+    }
+    document.getElementById(`count-${key}`).textContent = inColumn.length;
+  });
+}
+
+/** Atnaujina bendrą XP, lygį, rangą ir progreso juostą. */
+function renderProgress(skills) {
+  const totalXp = calculateTotalXp(skills);
+  const { current, next, percent } = getLevelInfo(totalXp);
+
+  document.getElementById('xp-total').textContent = `${totalXp} XP`;
+  document.getElementById('level-value').textContent = current.level;
+  document.getElementById('rank-value').textContent = current.rank;
+
+  const bar = document.getElementById('xp-bar');
+  bar.setAttribute('aria-valuenow', percent);
+  document.getElementById('xp-bar-fill').style.setProperty('--value', `${percent}%`);
+  document.getElementById('xp-bar-text').textContent = `${percent}%`;
+
+  const label = document.getElementById('xp-progress-label');
+  const note = document.getElementById('xp-progress-note');
+  if (next) {
+    label.textContent = 'Progresas iki kito lygio';
+    note.textContent = `${totalXp} / ${next.min} XP · liko ${next.min - totalXp} XP iki ${next.level} lygio`;
+  } else {
+    label.textContent = 'Pasiektas aukščiausias lygis';
+    note.textContent = `${totalXp} XP · maksimalus progresas`;
+  }
+}
+
+/** Atnaujina statistiką: viso įgūdžių, atlikta, procentas. */
+function renderStats(skills) {
+  const { total, done, percent } = calculateStats(skills);
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-percent').textContent = `${percent}%`;
+}
+
+/** Perpiešia visą modulį pagal dabartinę įgūdžių masyvo būseną. */
+function updateModule(skills) {
+  renderSkills(skills);
+  renderProgress(skills);
+  renderStats(skills);
+}
+
+/* ---------- 5. INICIALIZACIJA ---------- */
+
+document.addEventListener('DOMContentLoaded', () => {
+  const kanban = document.getElementById('kanban');
+  if (!kanban) return;                       // kituose puslapiuose modulio nėra
+
+  const skills = loadSkills();               // iš Local Storage arba pradinės būsenos
+  updateModule(skills);
+
+  // Būsenos keitimas (event delegation – vienas klausytojas visai lentai)
+  kanban.addEventListener('change', (event) => {
+    const select = event.target.closest('.skill-select');
+    if (!select) return;
+
+    const skill = skills.find((item) => item.id === select.dataset.skillId);
+    if (!skill) return;
+
+    skill.status = select.value;             // pakeičiama būsena masyve
+    saveSkills(skills);                      // išsaugoma Local Storage
+    updateModule(skills);                    // kortelė perkeliama, viskas perskaičiuojama
+
+    // grąžiname fokusą į perkeltą kortelę (patogu valdant klaviatūra)
+    const moved = kanban.querySelector(`.skill-select[data-skill-id="${skill.id}"]`);
+    if (moved) moved.focus();
+  });
 });

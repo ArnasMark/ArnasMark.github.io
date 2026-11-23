@@ -799,7 +799,8 @@ a:focus-visible {
   font-size: 0.85rem;
   font-weight: 700;
   box-shadow: 0 0 14px rgba(245, 185, 66, 0.55);
-  animation: xp-fill 1.4s ease-out both;
+  transition: width 0.7s ease;                  /* sklandus pokytis keičiant būsenas */
+  animation: xp-fill 1.4s ease-out;
 }
 
 @keyframes xp-fill {
@@ -974,6 +975,46 @@ a:focus-visible {
   font-weight: 700;
   color: #ffffff;
   background: rgba(255, 255, 255, 0.12);
+}
+
+/* 12 LD: dinamiškų kortelių papildymai */
+.skill-card {
+  flex-wrap: wrap;
+}
+
+.skill-card .skill-select {
+  flex: 1 1 100%;
+  width: 100%;
+  padding: 6px 10px;
+  font-family: var(--nav-font);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #12212a;
+  border: 1px solid color-mix(in srgb, var(--col), transparent 55%);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.skill-card .skill-select:hover,
+.skill-card .skill-select:focus {
+  border-color: var(--col);
+  outline: 0;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--col), transparent 75%);
+}
+
+.xp-bar-fill span {
+  white-space: nowrap;
+}
+
+.kanban-list .kanban-empty {
+  padding: 1.25rem 1rem;
+  text-align: center;
+  font-size: 0.95rem;
+  color: #b4c3ca;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
 }
 
 /* ---------- Modulio prisitaikymas ---------- */
